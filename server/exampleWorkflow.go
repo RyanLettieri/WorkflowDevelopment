@@ -8,14 +8,13 @@ import (
 )
 
 func BankTransfer(ctx workflow.Context, sourceAcc string, destinationAcc string, ammount float32) error {
-	fmt.Printf("STARTING TRANSFER of %f from %s to %s\n", ammount, sourceAcc, destinationAcc)
-
+	fmt.Printf("Starting Transfer of %f from %s to %s\n", ammount, sourceAcc, destinationAcc)
 	options := workflow.ActivityOptions{
 		TaskQueue:              BankTaskQueue,
 		ScheduleToCloseTimeout: time.Second * 60,
 		ScheduleToStartTimeout: time.Second * 60,
 		StartToCloseTimeout:    time.Second * 60,
-		HeartbeatTimeout:       time.Second * 41,
+		HeartbeatTimeout:       time.Second * 60,
 		WaitForCancellation:    false,
 	}
 
@@ -41,34 +40,25 @@ func BankTransfer(ctx workflow.Context, sourceAcc string, destinationAcc string,
 	return nil
 }
 
-func longRunning(ctx workflow.Context) error {
-	fmt.Println("RRL STARTING LONG RUN")
+func LongRunning(ctx workflow.Context) error {
+	fmt.Println("Starting Long Running Activity")
+
 	options := workflow.ActivityOptions{
 		TaskQueue:              LongTaskQueue,
 		ScheduleToCloseTimeout: time.Second * 600,
 		ScheduleToStartTimeout: time.Second * 600,
 		StartToCloseTimeout:    time.Second * 600,
-		HeartbeatTimeout:       time.Second * 600,
-		WaitForCancellation:    false,
+		HeartbeatTimeout:       time.Second * 5,
+		WaitForCancellation:    true,
 	}
 
 	ctx = workflow.WithActivityOptions(ctx, options)
 
-	// The reason there are 2 instances of executeActivity here:
-	// The first call seems to work as intended, but the second call is what is ion the recommended guide on the temporal page. Howver, it doesn't seem to work
-	err := workflow.ExecuteActivity(ctx, longRunningAct).Get(ctx, nil)
+	err := workflow.ExecuteActivity(ctx, LongRunningAct).Get(ctx, nil)
 	if err != nil {
-		fmt.Println("RRL ERROR During long run call")
-		fmt.Println("RRL ERROR: ", err.Error())
+		fmt.Println("ERROR During long run call: ", err.Error())
 	}
 
-	future := workflow.ExecuteActivity(ctx, longRunningAct)
-	if future.IsReady() {
-		err := future.Get(ctx, nil)
-		if err != nil {
-			fmt.Println("ERROR during long run activity: ", err.Error())
-		}
-	}
-
+	fmt.Println("Long Running Activity Finished")
 	return nil
 }

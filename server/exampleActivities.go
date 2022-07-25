@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"go.temporal.io/sdk/activity"
 )
 
 func GetBankBalance(ctx context.Context, bankAccount string) (int, error) {
@@ -21,12 +23,20 @@ func WriteFunc(ctx context.Context) error {
 	return nil
 }
 
-func longRunningAct(ctx context.Context) error {
-	var counter int
-	for i := 0; i < 70; i++ {
-		fmt.Println("Running Long Running Activity", counter)
-		counter++
-		time.Sleep(time.Duration(5) * time.Second)
+func LongRunningAct(ctx context.Context) error {
+	counter := 0
+	for i := 0; i <= 60; i++ {
+
+		select {
+		case <-time.After(1 * time.Second):
+			fmt.Println("Running Long Running Activity", counter)
+			os.WriteFile("file2.txt", []byte{byte(counter)}, 0666)
+			counter++
+			activity.RecordHeartbeat(ctx, "")
+		case <-ctx.Done():
+			fmt.Println("Activity Cancelled")
+			return nil
+		}
 	}
 	return nil
 }

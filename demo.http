@@ -1,0 +1,19 @@
+// POST http://localhost:3500/v1.0/workflows/{workflowType}/{instanceId}/start
+
+### Start long running process
+POST http://localhost:8000/workflows/LongRunning/{instanceId}/start
+# Content-Type: application/json
+# {"test": "phone"}
+
+### Start Bank Transfer Process
+POST http://localhost:8000/workflows/BankTransfer/{instanceId}/start
+# Content-Type: application/json
+# {"test": "phone"}
+
+### GET workflow info Process
+GET http://localhost:8000/workflows/6b6ebbee-e2f9-4baf-9907-40930c9299a0/338525a5-e715-4050-8d14-88b69f37f1d6/info
+# Content-Type: application/json
+# {"test": "phone"}
+
+### Terminate
+POST http://localhost:8000/workflows/e880627c-b115-4008-a0d4-7ac9489665bb/5d68394d-9cad-4401-94af-242f194b2a9d/terminate
