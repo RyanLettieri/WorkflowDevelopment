@@ -8,7 +8,7 @@ import (
 )
 
 func BankTransfer(ctx workflow.Context, sourceAcc string, destinationAcc string, ammount float32) error {
-	fmt.Printf("RRL STARTING TRANSFER of %f from %s to %s\n", ammount, sourceAcc, destinationAcc)
+	fmt.Printf("STARTING TRANSFER of %f from %s to %s\n", ammount, sourceAcc, destinationAcc)
 
 	options := workflow.ActivityOptions{
 		TaskQueue:              BankTaskQueue,
@@ -26,22 +26,18 @@ func BankTransfer(ctx workflow.Context, sourceAcc string, destinationAcc string,
 
 	err := workflow.ExecuteActivity(ctx, GetBankBalance, sourceAcc).Get(ctx, &balanceA)
 	if err != nil {
-		fmt.Println("RRL ERROR During 1st call")
-		fmt.Println("RRL ERROR: ", err.Error())
+		fmt.Println("ERROR during balance call for source bank: ", err.Error())
 	}
 
 	err = workflow.ExecuteActivity(ctx, GetBankBalance, destinationAcc).Get(ctx, &balanceB)
 	if err != nil {
-		fmt.Println("RRL ERROR During 2nd call")
-		fmt.Println("RRL ERROR: ", err.Error())
+		fmt.Println("ERROR during balance call for destination bank: ", err.Error())
 	}
 
 	err = workflow.ExecuteActivity(ctx, WriteFunc).Get(ctx, nil)
 	if err != nil {
-		fmt.Println("RRL ERROR During 3rd call")
-		fmt.Println("RRL ERROR: ", err.Error())
+		fmt.Println("ERROR during write call: ", err.Error())
 	}
-	fmt.Println("END OF WORKFLOW")
 	return nil
 }
 
@@ -58,6 +54,8 @@ func longRunning(ctx workflow.Context) error {
 
 	ctx = workflow.WithActivityOptions(ctx, options)
 
+	// The reason there are 2 instances of executeActivity here:
+	// The first call seems to work as intended, but the second call is what is ion the recommended guide on the temporal page. Howver, it doesn't seem to work
 	err := workflow.ExecuteActivity(ctx, longRunningAct).Get(ctx, nil)
 	if err != nil {
 		fmt.Println("RRL ERROR During long run call")
@@ -65,18 +63,12 @@ func longRunning(ctx workflow.Context) error {
 	}
 
 	future := workflow.ExecuteActivity(ctx, longRunningAct)
-	// time.Sleep(time.Duration(1) * time.Second)
 	if future.IsReady() {
 		err := future.Get(ctx, nil)
 		if err != nil {
-			fmt.Println("RRL ERROR During long run call")
-			fmt.Println("RRL ERROR: ", err.Error())
-		} else {
-			fmt.Println("RRL SUCCESS")
+			fmt.Println("ERROR during long run activity: ", err.Error())
 		}
-
 	}
-	fmt.Println("END OF WORKFLOW")
 
 	return nil
 }

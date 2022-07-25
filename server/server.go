@@ -131,8 +131,7 @@ func terminateWorkFlow(rw http.ResponseWriter, r *http.Request) {
 
 	err := temporalClient.CancelWorkflow(context.Background(), x[3], x[4])
 	if err != nil {
-		fmt.Println("RRL ERROR During TERMINATE")
-		fmt.Println("RRL ERROR: ", err.Error())
+		fmt.Println("ERROR during terminate: ", err.Error())
 	}
 }
 
@@ -141,6 +140,6 @@ func registerWorkFlow(rw http.ResponseWriter, r *http.Request) {
 }
 
 func getWorkflowStats(rw http.ResponseWriter, r *http.Request) {
-	rw.Write([]byte("Get Wokrflow Stats\n"))
+	rw.Write([]byte("Get Workflow Stats\n"))
 	// temporalClient.QueryWorkflow()
 }

@@ -15,7 +15,7 @@ func GetBankBalance(ctx context.Context, bankAccount string) (int, error) {
 
 func WriteFunc(ctx context.Context) error {
 	fmt.Println("Calling Write Func")
-	if err := os.WriteFile("file2.txt", []byte("Transfered money from bank1 to bank2 RRL2"), 0666); err != nil {
+	if err := os.WriteFile("file2.txt", []byte("Transfered money from bank1 to bank2"), 0666); err != nil {
 		log.Fatal(err)
 	}
 	return nil
